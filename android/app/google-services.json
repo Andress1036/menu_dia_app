@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "138217414534",
+    "firebase_url": "https://cartamrsabor-default-rtdb.firebaseio.com",
+    "project_id": "cartamrsabor",
+    "storage_bucket": "cartamrsabor.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:138217414534:android:af06d800b44a69a3e7d607",
+        "android_client_info": {
+          "package_name": "com.example.menudia_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3DVz74wKt0obCAB7gjb3URWW4kAiqvr4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
