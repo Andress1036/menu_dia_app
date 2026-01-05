@@ -13,10 +13,16 @@ class MenuDiaPage extends StatefulWidget {
 class _MenuDiaPageState extends State<MenuDiaPage> {
   final MenuDiaController _menuController = MenuDiaController();
 
-  String bebidaDia = "bebida dia";
-  String carneDia = "carne dia";
-  String ensalada = "ensalada";
-  String sopaDia = "sopa";
+  final TextEditingController _bebidaController = TextEditingController();
+  final TextEditingController _carneController = TextEditingController();
+  final TextEditingController _ensaladaController = TextEditingController();
+  final TextEditingController _sopaController = TextEditingController();
+
+  String bebidaDia = "";
+  
+  String carneDia = "";
+  String ensalada = "";
+  String sopaDia = "";
 
   String imagenSeleccionada = "nada";
   List<String> imagenesDisponibles = [];
@@ -25,7 +31,7 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
   void initState() {
     super.initState();
 
-    // Escuchar menú (posición 0 de la lista)
+    
 
     _menuController.getMenu().listen((menu) {
       setState(() {
@@ -34,6 +40,11 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
         ensalada = menu.ensalada;
         sopaDia = menu.sopaDia;
         imagenSeleccionada = menu.img.split("dia/").last.split(".").first;
+
+        _bebidaController.text = menu.bebidaDia;
+        _carneController.text = menu.carneDia;
+        _ensaladaController.text = menu.ensalada;
+        _sopaController.text = menu.sopaDia;
       });
     });
     // Escuchar imágenes disponibles
@@ -43,15 +54,29 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
       });
     });
 
+    
+
+  }
+
+  void _updateMenu() {
     _menuController.updateMenu(
       MenuModel(
         bebidaDia: bebidaDia,
         carneDia: carneDia,
         ensalada: ensalada,
         sopaDia: sopaDia,
-        img: "../../assets/fotos/dia/$imagenSeleccionada.webp"
+        img: "../../assets/fotos/dia/$imagenSeleccionada.webp",
       ),
     );
+    }
+
+  @override
+  void dispose() {
+    _bebidaController.dispose();
+    _carneController.dispose();
+    _ensaladaController.dispose();
+    _sopaController.dispose();
+    super.dispose();
   }
 
   @override
@@ -75,15 +100,18 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                     ),
                     SizedBox(width: 10),
                     Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
-                  ),
-                  child: Text(bebidaDia, style: const TextStyle(fontSize: 18)),
-                ),
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black),
+                      ),
+                      child: Text(
+                        bebidaDia,
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                    ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 5),
                 Row(
                   children: [
@@ -100,7 +128,10 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.black),
                       ),
-                      child: Text(carneDia, style: const TextStyle(fontSize: 18)),
+                      child: Text(
+                        carneDia,
+                        style: const TextStyle(fontSize: 18),
+                      ),
                     ),
                   ],
                 ),
@@ -113,13 +144,17 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
-                    ),SizedBox(width: 10),
+                    ),
+                    SizedBox(width: 10),
                     Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.black),
                       ),
-                      child: Text(ensalada, style: const TextStyle(fontSize: 18)),
+                      child: Text(
+                        ensalada,
+                        style: const TextStyle(fontSize: 18),
+                      ),
                     ),
                   ],
                 ),
@@ -139,7 +174,10 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.black),
                       ),
-                      child: Text(sopaDia, style: const TextStyle(fontSize: 18)),
+                      child: Text(
+                        sopaDia,
+                        style: const TextStyle(fontSize: 18),
+                      ),
                     ),
                   ],
                 ),
@@ -201,26 +239,49 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                TextField(
-                  decoration: const InputDecoration(
-                    labelText: "Agregar bebida",
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _menuController.updateMenu(
-                        MenuModel(
-                          bebidaDia: value,
-                          carneDia: carneDia,
-                          ensalada: ensalada,
-                          sopaDia: sopaDia,
-                          img: imagenSeleccionada,
-                        ),
-                      );
-                    });
-                  },
+                Column(
+                  children: [
+                    TextField(
+                      controller: _bebidaController,
+                      decoration: InputDecoration(labelText: "Bebida del día"),
+                    ),
+                    TextField(
+                      controller: _carneController,
+                      decoration: InputDecoration(labelText: "Carne del día"),
+                    ),
+                    TextField(
+                      controller: _ensaladaController,
+                      decoration: InputDecoration(labelText: "Ensalada"),
+                    ),
+                    TextField(
+                      controller: _sopaController,
+                      decoration: InputDecoration(labelText: "Sopa del día"),
+                    ),
+                    SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        // 🔹 Actualizar Firebase SOLO al presionar el botón
+                        _menuController.updateMenu(
+                          MenuModel(
+                            bebidaDia: _bebidaController.text,
+                            carneDia: _carneController.text,
+                            ensalada: _ensaladaController.text,
+                            sopaDia: _sopaController.text, // img se omite en este caso
+                          ),
+                        );
+                      },
+                      child: Text("Guardar cambios"),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 10),
-                Text("Elige la imagen del día:", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(
+                  "Elige la imagen del día:",
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 DropdownButton<String>(
                   value: imagenSeleccionada,
                   hint: Text("Selecciona la imagen"),
@@ -256,3 +317,4 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
     );
   }
 }
+  

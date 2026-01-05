@@ -10,7 +10,7 @@ class MenuModel {
     required this.carneDia,
     required this.ensalada,
     required this.sopaDia,
-    required this.img,
+    this.img = "",
   });
 
   factory MenuModel.fromMap(Map<dynamic, dynamic> data) {
