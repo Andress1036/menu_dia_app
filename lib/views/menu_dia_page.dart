@@ -1,4 +1,4 @@
-import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../controllers/menu_dia_controller.dart';
 import '../models/menu_model.dart';
@@ -13,13 +13,15 @@ class MenuDiaPage extends StatefulWidget {
 class _MenuDiaPageState extends State<MenuDiaPage> {
   final MenuDiaController _menuController = MenuDiaController();
 
+  
+
+
   final TextEditingController _bebidaController = TextEditingController();
   final TextEditingController _carneController = TextEditingController();
   final TextEditingController _ensaladaController = TextEditingController();
   final TextEditingController _sopaController = TextEditingController();
 
   String bebidaDia = "";
-  
   String carneDia = "";
   String ensalada = "";
   String sopaDia = "";
@@ -30,9 +32,6 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
   @override
   void initState() {
     super.initState();
-
-    
-
     _menuController.getMenu().listen((menu) {
       setState(() {
         bebidaDia = menu.bebidaDia;
@@ -53,11 +52,7 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
         imagenesDisponibles = imagenes;
       });
     });
-
-    
-
   }
-
 
   @override
   void dispose() {
@@ -71,7 +66,17 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Editar Menú del Día")),
+      appBar: AppBar(
+        title: const Text("Editor Menú del Día"),
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          fontSize: 28,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
+        backgroundColor: Colors.amber,
+        
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -100,7 +105,6 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                     ),
                   ],
                 ),*/
-
                 const SizedBox(height: 5),
                 Row(
                   children: [
@@ -120,8 +124,10 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
-                          carneDia, softWrap: true, maxLines: null,
-                           overflow: TextOverflow.visible,
+                          carneDia,
+                          softWrap: true,
+                          maxLines: null,
+                          overflow: TextOverflow.visible,
                           style: const TextStyle(fontSize: 20),
                           textAlign: TextAlign.center,
                         ),
@@ -130,7 +136,7 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                   ],
                 ),
                 const SizedBox(height: 5),
-               /* Row(
+                /* Row(
                   children: [
                     Text(
                       "Ensalada:",
@@ -189,7 +195,7 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                     ),
                     SizedBox(width: 10),
                     Container(
-                      padding: const EdgeInsets.all(4),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.black, width: 1.5),
                         borderRadius: BorderRadius.circular(10),
@@ -203,55 +209,107 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                
               ],
             ),
             const SizedBox(height: 15),
-            
+
             Column(
               children: [
-                Text(
-                  "Modificación Menú Día:",
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.amber,
+                    borderRadius: BorderRadius.circular(8),
+                    
+                  ),
+                  width: double.infinity,
+                  
+                  child: Text(
+                    "Modificación Menú Día",
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      backgroundColor: Colors.amber,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
+
+                const SizedBox(height: 10),
                 Column(
                   children: [
                     TextField(
                       controller: _bebidaController,
-                      decoration: InputDecoration(labelText: "Bebida del día", labelStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                      decoration: InputDecoration(
+                        labelText: "Bebida del día",
+                        labelStyle: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       onTap: () {
+                        final inicio = _bebidaController.text.length > 8 ? 8 : 0;
                         // Selecciona todo el texto al tocar
-                        _bebidaController.selection = TextSelection(baseOffset: 0, extentOffset: _bebidaController.text.length);
+                        _bebidaController.selection = TextSelection(
+                          baseOffset: inicio,
+                          extentOffset: _bebidaController.text.length,
+                        );
                       },
                       textAlign: TextAlign.center,
                     ),
                     TextField(
                       controller: _carneController,
-                      decoration: InputDecoration(labelText: "Carne del día", labelStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                      decoration: InputDecoration(
+                        labelText: "Carne del día",
+                        labelStyle: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       onTap: () {
+                        final inicio = _carneController.text.length > 28 ? 28 : 0;
                         // Selecciona todo el texto al tocar
-                        _carneController.selection = TextSelection(baseOffset: 0, extentOffset: _carneController.text.length);
+                        _carneController.selection = TextSelection(
+                          baseOffset: inicio,
+                          extentOffset: _carneController.text.length,
+                        );
                       },
                       textAlign: TextAlign.center,
                     ),
                     TextField(
                       controller: _ensaladaController,
-                      decoration: InputDecoration(labelText: "Ensalada", labelStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                      decoration: InputDecoration(
+                        labelText: "Ensalada",
+                        labelStyle: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       onTap: () {
+                        final inicio = _ensaladaController.text.length > 16 ? 16 : 0;
                         // Selecciona todo el texto al tocar
-                        _ensaladaController.selection = TextSelection(baseOffset: 0, extentOffset: _ensaladaController.text.length);
+                        _ensaladaController.selection = TextSelection(
+                          baseOffset: inicio,
+                          extentOffset: _ensaladaController.text.length,
+                        );
                       },
                       textAlign: TextAlign.center,
                     ),
                     TextField(
                       controller: _sopaController,
-                      decoration: InputDecoration(labelText: "Sopa del día", labelStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                      decoration: InputDecoration(
+                        labelText: "Sopa del día",
+                        labelStyle: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       onTap: () {
+                        final inicio = _sopaController.text.length > 5 ? 5 : 0;
                         // Selecciona todo el texto al tocar
-                        _sopaController.selection = TextSelection(baseOffset: 0, extentOffset: _sopaController.text.length);
+                        _sopaController.selection = TextSelection(
+                          baseOffset: inicio,
+                          extentOffset: _sopaController.text.length,
+                        );
                       },
                       textAlign: TextAlign.center,
                     ),
@@ -265,11 +323,15 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                             carneDia: _carneController.text,
                             ensalada: _ensaladaController.text,
                             sopaDia: _sopaController.text,
-                            img: "../../assets/fotos/dia/$imagenSeleccionada.webp",
+                            img:
+                                "../../assets/fotos/dia/$imagenSeleccionada.webp",
                           ),
                         );
                       },
-                      child: Text("Guardar cambios", style: TextStyle(fontSize: 20)),
+                      child: Text(
+                        "Guardar cambios",
+                        style: TextStyle(fontSize: 20),
+                      ),
                     ),
                   ],
                 ),
@@ -281,33 +343,49 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                DropdownButton<String>(
-                  value: imagenSeleccionada,
-                  style: TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold),
-                  hint: Text("Selecciona la imagen"),
-                  items: imagenesDisponibles
-                      .map(
-                        (opcion) => DropdownMenuItem(
-                          value: opcion,
-                          child: Text(opcion),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black, width: 1),
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.amber,
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 0),
+                  child: DropdownButton<String>(
+                    value: imagenSeleccionada,
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    hint: Text("Selecciona la imagen"),
+                    items: imagenesDisponibles
+                        .map(
+                          (opcion) => DropdownMenuItem(
+                            value: opcion,
+                            child: Center(
+                              child: Text(opcion, textAlign: TextAlign.center),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (valor) {
+                      setState(() {
+                        imagenSeleccionada = valor!;
+                      });
+                      // Aquí actualizas Firebase con el valor elegido
+                      _menuController.updateMenu(
+                        MenuModel(
+                          bebidaDia: bebidaDia,
+                          carneDia: carneDia,
+                          ensalada: ensalada,
+                          sopaDia: sopaDia,
+                          img: "../../assets/fotos/dia/$valor.webp",
                         ),
-                      )
-                      .toList(),
-                  onChanged: (valor) {
-                    setState(() {
-                      imagenSeleccionada = valor!;
-                    });
-                    // Aquí actualizas Firebase con el valor elegido
-                    _menuController.updateMenu(
-                      MenuModel(
-                        bebidaDia: bebidaDia,
-                        carneDia: carneDia,
-                        ensalada: ensalada,
-                        sopaDia: sopaDia,
-                        img: "../../assets/fotos/dia/$valor.webp",
-                      ),
-                    );
-                  },
+                      );
+                    },
+                    alignment: Alignment.center,
+                    
+                  ),
                 ),
               ],
             ),
@@ -317,4 +395,3 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
     );
   }
 }
-  

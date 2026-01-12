@@ -14,6 +14,11 @@ class FirebaseService {
     final credential = await _auth.signInWithEmailAndPassword(email: email, password: password);
     return credential.user;
   }
+
+  // Sign out
+  Future<void> signOut() async {
+    await _auth.signOut();
+  }
 // Obtener menú
   Stream<MenuModel> getMenu() {
     return _menuRef.onValue.map((event) {
