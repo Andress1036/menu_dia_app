@@ -291,8 +291,8 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                         ),
                       ),
                       onTap: () {
-                        final inicio = _carneController.text.length > 28
-                            ? 28
+                        final inicio = _carneController.text.length > 25
+                            ? 25
                             : 0;
                         // Selecciona todo el texto al tocar
                         _carneController.selection = TextSelection(
