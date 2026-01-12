@@ -10,10 +10,42 @@ class FirebaseService {
 
 
 // Login
-  Future<User?> login(String email, String password) async {
-    final credential = await _auth.signInWithEmailAndPassword(email: email, password: password);
+ Future<User?> login(String? email, String? password) async {
+  try {
+    // Validaciones básicas antes de llamar a Firebase
+    if (email == null || email.isEmpty) {
+      throw Exception("El correo no puede estar vacío");
+    }
+    if (password == null || password.isEmpty) {
+      throw Exception("La contraseña no puede estar vacía");
+    }
+
+    // Intentar login con Firebase
+    final credential = await _auth.signInWithEmailAndPassword(
+      email: email.trim(),
+      password: password.trim(),
+    );
+
     return credential.user;
+  } on FirebaseAuthException catch (e) {
+    // Errores específicos de Firebase
+    if (e.code == 'user-not-found') {
+      print("No existe un usuario con ese correo.");
+    } else if (e.code == 'wrong-password') {
+      print("Contraseña incorrecta.");
+    } else if (e.code == 'invalid-email') {
+      print("Formato de correo inválido.");
+    } else {
+      print("Error de autenticación: ${e.code}");
+    }
+    return null;
+  } catch (e) {
+    // Cualquier otro error inesperado
+    print("Error inesperado: $e");
+    return null;
   }
+}
+
 
   // Sign out
   Future<void> signOut() async {

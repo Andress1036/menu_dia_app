@@ -1,5 +1,8 @@
+import 'dart:async';
+
 
 import 'package:flutter/material.dart';
+import 'package:menudia_app/views/login_page.dart';
 import '../controllers/menu_dia_controller.dart';
 import '../models/menu_model.dart';
 
@@ -12,14 +15,15 @@ class MenuDiaPage extends StatefulWidget {
 
 class _MenuDiaPageState extends State<MenuDiaPage> {
   final MenuDiaController _menuController = MenuDiaController();
-
+  late StreamSubscription<MenuModel> _menuSub;
+  late StreamSubscription<List<String>> _imagenesSub;
   
-
-
   final TextEditingController _bebidaController = TextEditingController();
   final TextEditingController _carneController = TextEditingController();
   final TextEditingController _ensaladaController = TextEditingController();
   final TextEditingController _sopaController = TextEditingController();
+
+  
 
   String bebidaDia = "";
   String carneDia = "";
@@ -32,7 +36,9 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
   @override
   void initState() {
     super.initState();
-    _menuController.getMenu().listen((menu) {
+
+    _menuSub = _menuController.getMenu().listen((menu) {
+      if (!mounted) return;
       setState(() {
         bebidaDia = menu.bebidaDia;
         carneDia = menu.carneDia;
@@ -46,8 +52,10 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
         _sopaController.text = menu.sopaDia;
       });
     });
+    
     // Escuchar imágenes disponibles
-    _menuController.getImagenes().listen((imagenes) {
+    _imagenesSub = _menuController.getImagenes().listen((imagenes) {
+      if (!mounted) return;
       setState(() {
         imagenesDisponibles = imagenes;
       });
@@ -60,6 +68,8 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
     _carneController.dispose();
     _ensaladaController.dispose();
     _sopaController.dispose();
+    _menuSub.cancel();
+    _imagenesSub.cancel();
     super.dispose();
   }
 
@@ -75,7 +85,21 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
           color: Colors.black,
         ),
         backgroundColor: Colors.amber,
-        
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            tooltip: "Cerrar sesión",
+            onPressed: () async {
+              await _menuController.signOut();
+              if (context.mounted) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                );
+              }
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -219,10 +243,9 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                   decoration: BoxDecoration(
                     color: Colors.amber,
                     borderRadius: BorderRadius.circular(8),
-                    
                   ),
                   width: double.infinity,
-                  
+
                   child: Text(
                     "Modificación Menú Día",
                     style: const TextStyle(
@@ -247,7 +270,9 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                         ),
                       ),
                       onTap: () {
-                        final inicio = _bebidaController.text.length > 8 ? 8 : 0;
+                        final inicio = _bebidaController.text.length > 8
+                            ? 8
+                            : 0;
                         // Selecciona todo el texto al tocar
                         _bebidaController.selection = TextSelection(
                           baseOffset: inicio,
@@ -266,7 +291,9 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                         ),
                       ),
                       onTap: () {
-                        final inicio = _carneController.text.length > 28 ? 28 : 0;
+                        final inicio = _carneController.text.length > 28
+                            ? 28
+                            : 0;
                         // Selecciona todo el texto al tocar
                         _carneController.selection = TextSelection(
                           baseOffset: inicio,
@@ -285,7 +312,9 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                         ),
                       ),
                       onTap: () {
-                        final inicio = _ensaladaController.text.length > 16 ? 16 : 0;
+                        final inicio = _ensaladaController.text.length > 16
+                            ? 16
+                            : 0;
                         // Selecciona todo el texto al tocar
                         _ensaladaController.selection = TextSelection(
                           baseOffset: inicio,
@@ -335,7 +364,7 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                     ),
                   ],
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 20),
                 Text(
                   "Elige la imagen del día:",
                   style: const TextStyle(
@@ -343,6 +372,7 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                SizedBox(height: 10),
                 Container(
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.black, width: 1),
@@ -384,7 +414,6 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                       );
                     },
                     alignment: Alignment.center,
-                    
                   ),
                 ),
               ],

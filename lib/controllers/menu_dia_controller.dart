@@ -11,4 +11,8 @@ class MenuDiaController {
  Future<void> updateMenu(MenuModel menu) async {
     await _service.updateMenu(menu);
  }
+
+ Future<void> signOut() async {
+  await _service.signOut();
+ }
 }
