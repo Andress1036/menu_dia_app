@@ -14,23 +14,35 @@ class _LoginPageState extends State<LoginPage> {
   final passwordController = TextEditingController();
   final AuthController _authController = AuthController();
 
+  // Intentos fallidos seguidos en esta pantalla. Firebase no publica el límite real
+  // (varía según dispositivo y red), así que esto es solo una ayuda para no insistir.
+  int _intentosFallidos = 0;
+  bool _verPassword = false; // false = contraseña oculta (puntos)
+  bool _cargando = false; // evita pulsar "Entrar" varias veces mientras responde
+
   void _login() async {
-    final success = await _authController.login(
+    if (_cargando) return;
+    setState(() => _cargando = true);
+    final error = await _authController.login(
       emailController.text.trim(),
       passwordController.text.trim(),
     );
     if (!mounted) return; // 🔹 evita usar context si el widget ya no existe
-    if (success) {
+    if (error == null) {
       Navigator.pushReplacement(
         // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(builder: (_) => const MenuDiaPage()),
       );
     } else {
+      setState(() {
+        _cargando = false;
+        _intentosFallidos++;
+      });
       // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Error al iniciar sesión")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error), duration: const Duration(seconds: 6)),
+      );
     }
   }
 
@@ -58,11 +70,48 @@ class _LoginPageState extends State<LoginPage> {
             ),
             TextField(
               controller: passwordController,
-              decoration: const InputDecoration(labelText: "Contraseña"),
-              obscureText: true,
+              decoration: InputDecoration(
+                labelText: "Contraseña",
+                // Ojo para mostrar u ocultar lo que se escribe
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _verPassword ? Icons.visibility_off : Icons.visibility,
+                  ),
+                  tooltip: _verPassword
+                      ? "Ocultar contraseña"
+                      : "Mostrar contraseña",
+                  onPressed: () =>
+                      setState(() => _verPassword = !_verPassword),
+                ),
+              ),
+              obscureText: !_verPassword,
             ),
             const SizedBox(height: 20),
-            ElevatedButton(onPressed: _login, child: const Text("Entrar")),
+            ElevatedButton(
+              onPressed: _cargando ? null : _login,
+              child: Text(_cargando ? "Entrando..." : "Entrar"),
+            ),
+            if (_intentosFallidos > 0) ...[
+              const SizedBox(height: 16),
+              Text(
+                "Intentos fallidos seguidos: $_intentosFallidos",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: _intentosFallidos >= 3 ? Colors.red : Colors.black87,
+                ),
+              ),
+            ],
+            if (_intentosFallidos >= 3) ...[
+              const SizedBox(height: 8),
+              const Text(
+                "Cuidado: si sigues fallando, Firebase puede bloquear el acceso "
+                "temporalmente desde este dispositivo. Revisa los datos antes "
+                "de volver a intentar.",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.red),
+              ),
+            ],
           ],
         ),
       ),

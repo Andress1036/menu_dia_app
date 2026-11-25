@@ -6,6 +6,7 @@ class MenuDiaController {
 
   Stream<MenuModel> getMenu() => _service.getMenu();
   Stream<List<String>> getImagenes() => _service.getImagenesDisponibles();
+  Stream<Map<String, String>> getTextos() => _service.getTextosDia();
  
 
  Future<void> updateMenu(MenuModel menu) async {

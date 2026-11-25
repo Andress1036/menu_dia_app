@@ -17,7 +17,8 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
   final MenuDiaController _menuController = MenuDiaController();
   late StreamSubscription<MenuModel> _menuSub;
   late StreamSubscription<List<String>> _imagenesSub;
-  
+  late StreamSubscription<Map<String, String>> _textosSub;
+
   final TextEditingController _bebidaController = TextEditingController();
   final TextEditingController _carneController = TextEditingController();
   final TextEditingController _ensaladaController = TextEditingController();
@@ -33,6 +34,9 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
   String imagenSeleccionada = "nada";
   List<String> imagenesDisponibles = [];
 
+  // Texto de "carne del día" que corresponde a cada imagen (viene de Firebase: nodo textoDia)
+  Map<String, String> textosDia = {};
+
   @override
   void initState() {
     super.initState();
@@ -40,16 +44,18 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
     _menuSub = _menuController.getMenu().listen((menu) {
       if (!mounted) return;
       setState(() {
+        // Antes de guardar los valores nuevos: solo se reescribe un campo si su
+        // valor cambió en Firebase, para no borrar lo que se escribió sin guardar.
+        _sincronizarCampo(_bebidaController, bebidaDia, menu.bebidaDia);
+        _sincronizarCampo(_carneController, carneDia, menu.carneDia);
+        _sincronizarCampo(_ensaladaController, ensalada, menu.ensalada);
+        _sincronizarCampo(_sopaController, sopaDia, menu.sopaDia);
+
         bebidaDia = menu.bebidaDia;
         carneDia = menu.carneDia;
         ensalada = menu.ensalada;
         sopaDia = menu.sopaDia;
         imagenSeleccionada = menu.img.split("dia/").last.split(".").first;
-
-        _bebidaController.text = menu.bebidaDia;
-        _carneController.text = menu.carneDia;
-        _ensaladaController.text = menu.ensalada;
-        _sopaController.text = menu.sopaDia;
       });
     });
     
@@ -60,6 +66,23 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
         imagenesDisponibles = imagenes;
       });
     });
+
+    // Escuchar los textos asociados a cada imagen
+    _textosSub = _menuController.getTextos().listen((textos) {
+      if (!mounted) return;
+      setState(() {
+        textosDia = textos;
+      });
+    });
+  }
+
+  // Actualiza el campo solo cuando el valor guardado en Firebase es distinto al anterior
+  void _sincronizarCampo(
+    TextEditingController controller,
+    String anterior,
+    String nuevo,
+  ) {
+    if (nuevo != anterior) controller.text = nuevo;
   }
 
   @override
@@ -70,6 +93,7 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
     _sopaController.dispose();
     _menuSub.cancel();
     _imagenesSub.cancel();
+    _textosSub.cancel();
     super.dispose();
   }
 
@@ -381,7 +405,11 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 0),
                   child: DropdownButton<String>(
-                    value: imagenSeleccionada,
+                    // Si la imagen guardada no está en la lista, no se marca ninguna
+                    // (evita el error del desplegable) y se muestra el "hint"
+                    value: imagenesDisponibles.contains(imagenSeleccionada)
+                        ? imagenSeleccionada
+                        : null,
                     style: TextStyle(
                       fontSize: 20,
                       color: Colors.black,
@@ -399,9 +427,25 @@ class _MenuDiaPageState extends State<MenuDiaPage> {
                         )
                         .toList(),
                     onChanged: (valor) {
+                      // Texto guardado para esta imagen; el campo sigue editable a mano
+                      final textoNuevo = textosDia[valor];
+                      final hayTexto = textoNuevo != null && textoNuevo.isNotEmpty;
                       setState(() {
                         imagenSeleccionada = valor!;
+                        if (hayTexto) {
+                          carneDia = textoNuevo;
+                          _carneController.text = textoNuevo;
+                        }
                       });
+                      if (!hayTexto) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "No hay texto guardado para \"$valor\"; se dejó el anterior.",
+                            ),
+                          ),
+                        );
+                      }
                       // Aquí actualizas Firebase con el valor elegido
                       _menuController.updateMenu(
                         MenuModel(
